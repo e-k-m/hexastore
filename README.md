@@ -1,33 +1,73 @@
-hexa
-===============================
+# hexa
 
-version number: 0.1.0
-author: e-k-m
+> another hexastore implementation
 
-Overview
---------
+A pure Python triple store / graph database implementation. The
+implementation is based on
+[this paper](http://karras.rutgers.edu/hexastore.pdf). This is a
+project in its infancy, its usage is with risk and is mainly an
+exploration for a more serious implementation.
 
-Hexastore
-
-Installation / Usage
---------------------
+## Installation
 
 To install use pip:
 
-    $ pip install hexa
+	$ pip install hexa
 
 
 Or clone the repo:
 
-    $ git clone https://github.com/e-k-m/hexa.git
-    $ python setup.py install
-    
-Contributing
-------------
+	$ git clone <...>
+	$ python setup.py install
 
-TBD
+## API and Usage
 
-Example
--------
+```python
+from hexa.hexastore import Hexastore
 
-TBD
+# create a new database
+db = Hexastore()
+
+# add a single triple
+db.put(["hexastores", "are", "awesome"])
+
+# add a collection of triples
+db.putall([["hexastore", "is", "nice"],
+		   ["hexastore", "speed", "fast"],
+		   ["javascript", "is", "nice"]])
+
+
+# add triples represented as dictionaries
+db.addSPO({'hexastore': {'is': {'awesome': True, 'nice': True},
+						 'speed': {'fast': True}},
+		   'javascript': {'is': {'nice': True}}})
+
+# or using
+db.addSPO(...)
+db.addSOP(...)
+db.addOSP(...)
+db.addOPS(...)
+db.addPSO(...)
+db.addPOS(...)
+
+# import and export
+db.import("mydatabase")    # import mydatabase.json
+db.importNt("mydatabase")  # import mydatabase.nt
+
+db.export("mydatabase")    # export mydatabase.json
+db.exportNt("mydatabase")  # export mydatabase.json
+
+
+# searching (stuff in list are to be bound variables)
+result = db.search([ [["what"],"is","nice"]]);
+
+# -> [{'what': 'hexastore'}, {'what': 'javascript'}]
+
+# and since search result are only a list you can use
+# map, filter and reduce to your hart delight.
+```
+
+## TODO
+
+- [ ] Extend by implementing features from levelgraph
+
