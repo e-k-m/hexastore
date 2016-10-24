@@ -51,12 +51,11 @@ db.addPSO(...)
 db.addPOS(...)
 
 # import and export
-db.import("mydatabase")    # import mydatabase.json
-db.importNt("mydatabase")  # import mydatabase.nt
+db.importJSON("mydatabase")    # import mydatabase.json
+db.importNt("mydatabase")      # import mydatabase.nt
 
-db.export("mydatabase")    # export mydatabase.json
-db.exportNt("mydatabase")  # export mydatabase.json
-
+db.exportJSON("mydatabase")    # export mydatabase.json
+db.exportNt("mydatabase")      # export mydatabase.json
 
 # searching (stuff in list are to be bound variables)
 result = db.search([ [["what"],"is","nice"]]);
@@ -64,7 +63,7 @@ result = db.search([ [["what"],"is","nice"]]);
 # -> [{'what': 'hexastore'}, {'what': 'javascript'}]
 
 # and since search result are only a list you can use
-# map, filter and reduce to your hart delight.
+# map, filter and reduce to your hearts delight.
 ```
 
 ## TODO
