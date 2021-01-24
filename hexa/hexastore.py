@@ -290,9 +290,9 @@ class Hexastore(object):
 
         def instantiateVariablesInResult(result, query, triples):
             res = [None]  * len(triples)
-            for i in xrange(len(triples)):
+            for i in range(len(triples)):
                 res[i] = copy.copy(result)
-                for j in xrange(3):
+                for j in range(3):
                     if isinstance(query[j], list):
                         res[i][query[j][0]] = triples[i][j];
             return res
