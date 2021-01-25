@@ -1,40 +1,23 @@
-*.py[cod]
-
-# C extensions
-*.so
-
-# pycharm
-.idea/
-.idea
-
-# Packages
+# general
+build/
+dist/
+*.egg-info/
 *.egg
-*.egg-info
-build
-eggs
-parts
-bin
-var
-sdist
-develop-eggs
-.installed.cfg
-lib
-lib64
+*.py[cod]
+__pycache__/
+*.so
+*~
 
-# Installer logs
-pip-log.txt
+# environments
+.env
+.venv
+env
+venv
+.nox
 
-# Unit test / coverage reports
+# testing
 .coverage
-.tox
-nosetests.xml
 
-# Complexity
-output/*.html
-output/*/index.html
-
-# Sphinx
-docs/_build
-
-# Cookiecutter
-output/
+# other
+.idea
+.vscode

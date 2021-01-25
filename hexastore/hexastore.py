@@ -11,8 +11,8 @@ import uuid
 import csv
 import copy
 
-class Hexastore(object):
 
+class Hexastore(object):
     def __init__(self):
         self.spo = {}
         self.sop = {}
@@ -38,9 +38,9 @@ class Hexastore(object):
             v = element[3]
 
         def f(index, s, p, o):
-            if not s in index:
+            if s not in index:
                 index[s] = {}
-            if not p in index[s]:
+            if p not in index[s]:
                 index[s][p] = {}
             index[s][p][o] = v
 
@@ -65,31 +65,37 @@ class Hexastore(object):
     def addSPO(self, element):
         def f(s, p, o, v):
             self.put([s, p, o, v])
+
         self._addSPO(element, f)
 
     def addSOP(self, element):
         def f(s, o, p, v):
             self.put([s, p, o, v])
+
         self._addSPO(element, f)
 
     def addPSO(self, element):
         def f(p, s, o, v):
             self.put([s, p, o, v])
+
         self._addSPO(element, f)
 
     def addPOS(self, element):
         def f(p, o, s, v):
             self.put([s, p, o, v])
+
         self._addSPO(element, f)
 
     def addOSP(self, element):
         def f(o, s, p, v):
             self.put([s, p, o, v])
+
         self._addSPO(element, f)
 
     def addOPS(self, element):
         def f(o, p, s, v):
             self.put([s, p, o, v])
+
         self._addSPO(element, f)
 
     def getSPO(self):
@@ -127,13 +133,21 @@ class Hexastore(object):
         self.osp = {}
         self.ops = {}
 
-    def addDictAsPath(self, obj, name, seperator='/'):
+    def addDictAsPath(self, obj, name, seperator="/"):
         if isinstance(obj, dict):
             for p in obj:
-                self.put([name, p,
-                          self.addDictAsPath(obj[p],
-                                             '{0}{1}{2}'.format(name, seperator, p),
-                                             seperator), True])
+                self.put(
+                    [
+                        name,
+                        p,
+                        self.addDictAsPath(
+                            obj[p],
+                            "{0}{1}{2}".format(name, seperator, p),
+                            seperator,
+                        ),
+                        True,
+                    ]
+                )
             return name
         elif isinstance(obj, str):
             return obj
@@ -275,7 +289,6 @@ class Hexastore(object):
                     return self.querySPO(element)
 
     def search(self, query):
-
         def instantiateVariablesInQuery(result, query):
             res = []
             for q in query:
@@ -289,12 +302,12 @@ class Hexastore(object):
             return res
 
         def instantiateVariablesInResult(result, query, triples):
-            res = [None]  * len(triples)
+            res = [None] * len(triples)
             for i in range(len(triples)):
                 res[i] = copy.copy(result)
                 for j in range(3):
                     if isinstance(query[j], list):
-                        res[i][query[j][0]] = triples[i][j];
+                        res[i][query[j][0]] = triples[i][j]
             return res
 
         def doSearch(result, theQuery):
@@ -313,23 +326,30 @@ class Hexastore(object):
         return doSearch({}, query)
 
     def exportJSON(self, dbname):
-        with open('{0}.json'.format(dbname), 'w') as f:
+        with open("{0}.json".format(dbname), "w") as f:
             json.dump(self.spo, f)
 
     def importJSON(self, dbname):
-        with open('{0}.json'.format(dbname), 'r') as f:
-             self.addSPO(json.load(f))
+        with open("{0}.json".format(dbname), "r") as f:
+            self.addSPO(json.load(f))
+
     # FIXME: Buggy, since format is <> <> <> [<>].
     def exportNt(self, ntname):
-        s = ''.join(('{0} {1} {2} {3} .\n'.format(e[0], e[1], e[2],
-                                                 json.dumps(e[3]))
-                     for e in self.all()))
-        with open('{0}.nt'.format(ntname), 'w') as f:
+        s = "".join(
+            (
+                "{0} {1} {2} {3} .\n".format(
+                    e[0], e[1], e[2], json.dumps(e[3])
+                )
+                for e in self.all()
+            )
+        )
+        with open("{0}.nt".format(ntname), "w") as f:
             f.write(s)
+
     # FIXME: Buggy, since format is <> <> <> [<>].
     def importNt(self, ntname):
-        with open('{0}.nt'.format(ntname), 'r') as f:
-            r = csv.reader(f, delimiter=' ', quotechar='|')
+        with open("{0}.nt".format(ntname), "r") as f:
+            r = csv.reader(f, delimiter=" ", quotechar="|")
             for e in r:
                 if len(e) == 5:
                     try:

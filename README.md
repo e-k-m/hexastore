@@ -1,4 +1,4 @@
-# hexa
+# hexastore
 
 > another hexastore implementation
 
@@ -69,4 +69,3 @@ result = db.search([ [["what"],"is","nice"]]);
 ## TODO
 
 - [ ] Extend by implementing features from levelgraph
-
