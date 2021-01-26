@@ -19,7 +19,7 @@ def devel(session):
     install(session, "coverage", "fmt", "lint")
 
 
-@nox.session(python=["3.6", "3.7"])
+@nox.session(python=["3.6", "3.7", "3.8", "3.9"])
 def test(session):
     session.install("-e", ".")
     session.run("python", "-m", "unittest", "discover", "tests")

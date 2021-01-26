@@ -1,263 +1,191 @@
-from unittest import TestCase, main
-from hexastore.hexastore import Hexastore
+import unittest
 import os
 
-
-class test_initialize(TestCase):
-    def test_create_db(self):
-        _ = Hexastore()
-
-    def test_empty_db(self):
-        db = Hexastore()
-        self.assertEqual(db.size(), 0)
+from hexastore import Hexastore
 
 
-class test_create(TestCase):
+class TestCreate(unittest.TestCase):
+    def test_store_create(self):
+        store = Hexastore()
+        self.assertEqual(store.count(), 0)
+
+
+class TestInterfaces(unittest.TestCase):
     def setUp(self):
-        self.db = Hexastore()
+        self.store = Hexastore()
+        self.store.insert(["hello world", "is", "sentance"])
+        self.store.insert(["hello yal", "is", "sentance"])
 
-    def test_put(self):
-        self.db.put(["hello world", "is", "sentance"])
-        self.assertEqual(self.db.size(), 1)
+    def test_len(self):
+        self.assertEqual(len(self.store), 2)
 
-    def test_putall(self):
-        self.db.putall(
-            [
-                ["hey", "hey", "ho"],
-                ["hey", "hay", "ho"],
-                ["hey", "hey", "ha"],
-                ["hey", "hey", "hon"],
-            ]
-        )
-
-        self.assertEqual(self.db.size(), 4)
-
-    def test_addSPO(self):
-        element = {"a": {"b": {"c": True}}}
-        self.db.addSPO(element)
-        self.assertEqual(self.db.size(), 1)
-        self.assertDictEqual(self.db.getSPO(), element)
-
-    def test_addSOP(self):
-        element = {"aa": {"bb": {"cc": True}}}
-        self.db.addSOP(element)
-        self.assertEqual(self.db.size(), 1)
-        self.assertDictEqual(self.db.getSOP(), element)
-
-    def test_addOSP(self):
-        element = {"aaa": {"bbb": {"ccc": True}}}
-        self.db.addOSP(element)
-        self.assertEqual(self.db.size(), 1)
-        self.assertDictEqual(self.db.getOSP(), element)
-
-    def test_addOPS(self):
-        element = {"aaaa": {"bbbb": {"cccc": True}}}
-        self.db.addOPS(element)
-        self.assertEqual(self.db.size(), 1)
-        self.assertDictEqual(self.db.getOPS(), element)
-
-    def test_addPSO(self):
-        element = {"aaaaa": {"bbbbb": {"ccccc": True}}}
-        self.db.addPSO(element)
-        self.assertEqual(self.db.size(), 1)
-        self.assertDictEqual(self.db.getPSO(), element)
-
-    def test_addPOS(self):
-        element = {"aaaaaa": {"bbbbbb": {"cccccc": True}}}
-        self.db.addPOS(element)
-        self.assertEqual(self.db.size(), 1)
-        self.assertDictEqual(self.db.getPOS(), element)
-
-    def test_addDictAsPath(self):
-
-        self.db.addDictAsPath(
-            {"know": "joe", "lol": {"wow": "hab"}, "a": 1}, "bob"
-        )
-
-        self.assertEqual(self.db.size(), 4)
-        self.assertIn(["bob", "know", "joe", True], self.db.all())
-        self.assertIn(["bob", "a", "1", True], self.db.all())
-        self.assertIn(["bob/lol", "wow", "hab", True], self.db.all())
-        self.assertIn(["bob", "lol", "bob/lol", True], self.db.all())
-
-        self.db.addDictAsPath({"a": {"b": 1}}, "bob", ">")
-        self.assertIn(["bob", "a", "bob>a", True], self.db.all())
-        self.assertIn(["bob>a", "b", "1", True], self.db.all())
-
-    def test_addDictAsJSON(self):
-        added = self.db.addDictAsJSON(
-            {"know": "joe", "lol": {"wow": "hab"}, "a": 1}
-        )
-        self.assertEqual(self.db.size(), 4)
-        self.assertIn([added, "know", "joe", True], self.db.all())
-        self.assertIn([added, "a", "1", True], self.db.all())
-        self.assertIn([added, "lol", '{"wow": "hab"}', True], self.db.all())
-        self.assertIn(['{"wow": "hab"}', "wow", "hab", True], self.db.all())
-
-    def test_addDictAsUUID(self):
-        added = self.db.addDictAsUUID(
-            {"know": "joe", "lol": {"wow": "hab"}, "a": 1}
-        )
-        self.assertEqual(self.db.size(), 4)
-        self.assertIn([added, "know", "joe", True], self.db.all())
-        self.assertIn([added, "a", "1", True], self.db.all())
+    def test_iter(self):
+        for i, e in enumerate(self.store):
+            if i == 0:
+                self.assertEqual(e, ["hello world", "is", "sentance"])
+            elif i == 1:
+                self.assertEqual(e, ["hello yal", "is", "sentance"])
 
 
-class test_copy(TestCase):
+class TestInsert(unittest.TestCase):
     def setUp(self):
-        self.db = Hexastore()
-        self.db.putall(
-            [
-                ["hey", "hey", "ho"],
-                ["hey", "hay", "ha"],
-                ["hi", "hey", "ha"],
-                ["hi", "hey", "hon"],
-            ]
-        )
+        self.store = Hexastore()
 
-    def test_copySubject(self):
-        self.db.copySubject("hey", "bobie")
-        self.assertIn(["bobie", "hey", "ho", True], self.db.all())
-        self.assertIn(["bobie", "hay", "ha", True], self.db.all())
-
-    def test_copyPredicate(self):
-        self.db.copyPredicate("hey", "bo")
-        self.assertIn(["hey", "bo", "ho", True], self.db.all())
-        self.assertIn(["hi", "bo", "ha", True], self.db.all())
-        self.assertIn(["hi", "bo", "hon", True], self.db.all())
-
-    def test_copyObject(self):
-        self.db.copyObject("ha", "lid")
-        self.assertIn(["hey", "hay", "lid", True], self.db.all())
-        self.assertIn(["hi", "hey", "lid", True], self.db.all())
+    def test_insert(self):
+        r = self.store.insert(["hello world", "is", "sentance"])
+        self.assertEqual(r, self.store)
+        self.assertEqual(self.store.count(), 1)
+        self.assertRaises(ValueError, self.store.insert, [])
+        self.assertRaises(ValueError, self.store.insert, [None, None, None])
+        self.assertRaises(ValueError, self.store.insert, [{}, {}, {}])
 
 
-class test_read(TestCase):
+class TestDelete(unittest.TestCase):
     def setUp(self):
-        self.db = Hexastore()
-        self.db.addSPO({"a": {"b": {"c": True}}})
+        self.store = Hexastore()
+        self.store.insert(["a", "b", "c"]).insert(["e", "f", "g"])
 
-    def test_queryXXX(self):
-        res = self.db.queryXXX(["a", "b", "c"])
-        self.assertEqual([["a", "b", "c", True]], res)
+    def test_delete_all(self):
+        self.assertEqual(self.store.count(), 2)
+        r = self.store.delete_all()
+        self.assertEqual(r, self.store)
+        self.assertEqual(self.store.count(), 0)
 
-    def test_querySXX(self):
-        res = self.db.querySXX(["a", "b", "c"])
-        self.assertEqual([["a", "b", "c", True]], res)
-
-    def test_queryXPX(self):
-        res = self.db.queryXPX(["a", "b", "c"])
-        self.assertEqual([["a", "b", "c", True]], res)
-
-    def test_queryXXO(self):
-        res = self.db.queryXXO(["a", "b", "c"])
-        self.assertEqual([["a", "b", "c", True]], res)
-
-    def test_querySPX(self):
-        res = self.db.querySPX(["a", "b", "c"])
-        self.assertEqual([["a", "b", "c", True]], res)
-
-    def test_querySXO(self):
-        res = self.db.querySXO(["a", "b", "c"])
-        self.assertEqual([["a", "b", "c", True]], res)
-
-    def test_queryXPO(self):
-        res = self.db.queryXPO(["a", "b", "c"])
-        self.assertEqual([["a", "b", "c", True]], res)
-
-    def test_querySPO(self):
-        res = self.db.querySPO(["a", "b", "c"])
-        self.assertEqual([["a", "b", "c", True]], res)
-
-    def test_queryDispatch(self):
-        res = self.db.queryDispatch(["a", "b", "c"])
-        self.assertEqual([["a", "b", "c", True]], res)
-
-        res = self.db.queryDispatch([["a"], "b", "c"])
-        self.assertEqual([["a", "b", "c", True]], res)
-
-        res = self.db.queryDispatch(["a", ["b"], "c"])
-        self.assertEqual([["a", "b", "c", True]], res)
-
-        res = self.db.queryDispatch([["a"], ["b"], "c"])
-        self.assertEqual([["a", "b", "c", True]], res)
-
-        res = self.db.queryDispatch(["a", "b", ["c"]])
-        self.assertEqual([["a", "b", "c", True]], res)
-
-        res = self.db.queryDispatch([["a"], "b", ["c"]])
-        self.assertEqual([["a", "b", "c", True]], res)
-
-        res = self.db.queryDispatch(["a", ["b"], ["c"]])
-        self.assertEqual([["a", "b", "c", True]], res)
-
-        res = self.db.queryDispatch([["a"], ["b"], ["c"]])
-        self.assertEqual([["a", "b", "c", True]], res)
+    def test_delete(self):
+        self.assertTrue(self.store.search("e", "f", "g"))
+        r = self.store.delete(["e", "f", "g"])
+        self.assertEqual(r, self.store)
+        self.assertFalse(self.store.search("e", "f", "g"))
+        self.assertRaises(ValueError, self.store.delete, [])
+        self.assertRaises(ValueError, self.store.delete, [None, None, None])
+        self.assertRaises(ValueError, self.store.delete, [{}, {}, {}])
+        r = self.store.delete(["dummy", "dummy", "dummy"])
 
 
-class test_search(TestCase):
+class TestSearch(unittest.TestCase):
     def setUp(self):
-        self.db = Hexastore()
-        self.db.importNt("./tests/smalltestdataset")
+        self.store = Hexastore()
+        self.should = ["a", "b", "c"]
+        self.store.insert(self.should).insert(["e", "f", "g"])
 
-    def test_search_filter(self):
-        res = self.db.search(
-            [
-                [
-                    "<bizer/bsbm/v01/instances/ProductType1>",
-                    ["predicate"],
-                    ["object"],
-                ],
-                [["similar"], ["predicate"], ["object"]],
-            ]
+    def test_search(self):
+        r = self.store.search(subject="a")
+        self.assertEqual(r, [self.should])
+
+        r = self.store.search(None, "b")
+        self.assertEqual(r, [self.should])
+
+        r = self.store.search(None, None, "c")
+        self.assertEqual(r, [self.should])
+
+        r = self.store.search("a", "b", None)
+        self.assertEqual(r, [self.should])
+
+        r = self.store.search("a", None, "c")
+        self.assertEqual(r, [self.should])
+
+        r = self.store.search(None, "b", "c")
+        self.assertEqual(r, [self.should])
+
+        r = self.store.search("a", "b", "c")
+        self.assertEqual(r, [self.should])
+
+        r = self.store.search()
+        self.assertEqual(r, [self.should, ["e", "f", "g"]])
+
+        self.assertRaises(ValueError, self.store.search, {}, None, None)
+        self.assertRaises(ValueError, self.store.search, None, {}, None)
+        self.assertRaises(ValueError, self.store.search, None, None, {})
+
+    def test_search_subject(self):
+        r = self.store.search_subject("a")
+        self.assertEqual(r, [self.should])
+
+        r = self.store.search_subject("dummy")
+        self.assertEqual(r, [])
+
+    def test_search_predicate(self):
+        r = self.store.search_predicate("b")
+        self.assertEqual(r, [self.should])
+
+        r = self.store.search_predicate("dummy")
+        self.assertEqual(r, [])
+
+    def test_search_object(self):
+        r = self.store.search_object("c")
+        self.assertEqual(r, [self.should])
+
+        r = self.store.search_object("dummy")
+        self.assertEqual(r, [])
+
+    def test_search_subject_predicate(self):
+        r = self.store.search_subject_predicate("a", "b")
+        self.assertEqual(r, [self.should])
+
+        r = self.store.search_subject_predicate("dummy", "dummy")
+        self.assertEqual([], r)
+
+        r = self.store.search_subject_predicate("a", "dummy")
+        self.assertEqual([], r)
+
+    def test_search_subject_object(self):
+        r = self.store.search_subject_object("a", "c")
+        self.assertEqual(r, [self.should])
+
+        r = self.store.search_subject_object("a", "dummy")
+        self.assertEqual(r, [])
+
+        r = self.store.search_subject_object("dummy", "dummy")
+        self.assertEqual(r, [])
+
+    def test_search_predicate_object(self):
+        r = self.store.search_predicate_object("b", "c")
+        self.assertEqual(r, [self.should])
+
+        r = self.store.search_predicate_object("b", "dummy")
+        self.assertEqual(r, [])
+
+        r = self.store.search_predicate_object("dummy", "dummy")
+        self.assertEqual(r, [])
+
+    def test_search_subject_predicate_object(self):
+        r = self.store.search_subject_predicate_object("a", "b", "c")
+        self.assertEqual(r, [self.should])
+
+        r = self.store.search_subject_predicate_object("a", "dummy", "dummy")
+        self.assertEqual(r, [])
+
+        r = self.store.search_subject_predicate_object("a", "b", "dummy")
+        self.assertEqual(r, [])
+
+        r = self.store.search_subject_predicate_object("a", "dummy", "c")
+        self.assertEqual(r, [])
+
+        r = self.store.search_subject_predicate_object(
+            "dummy", "dummy", "dummy"
         )
-        self.assertEqual(72, len(res))
-
-    def test_precise_search(self):
-        res = self.db.search(
-            [
-                [
-                    "<bizer/bsbm/v01/instances/ProductType1>",
-                    "<dc/elements/1.1/publisher>",
-                    ["publisher"],
-                ]
-            ]
-        )
-
-        self.assertEqual(
-            "<bizer/bsbm/v01/instances/StandardizationInstitution1>",
-            res[0]["publisher"],
-        )
+        self.assertEqual(r, [])
 
 
-class test_import_export(TestCase):
+class TestImportExport(unittest.TestCase):
     def setUp(self):
-        self.db = Hexastore()
-        self.data = {"aaa": {"bbb": {"ccc": True}}}
-        self.db.addSPO(self.data)
+        self.store = Hexastore()
+        self.data = {"aaa": {"bbb": {"ccc": None}}}
+        self.store.insert(["aaa", "bbb", "ccc"])
+        self.name = "hexastore"
 
     def tearDown(self):
-        fj = "hexastoretest1.json"
-        fn = "hexastoretest1.nt"
-        if os.path.exists(fj):
-            os.remove(fj)
-        if os.path.exists(fn):
-            os.remove(fn)
+        path = f"./{self.name}.json"
+        if os.path.exists(path):
+            os.remove(path)
 
     def test_json(self):
-        self.db.exportJSON("hexastoretest1")
-        self.db.clear()
-        self.db.importJSON("hexastoretest1")
-        self.assertEqual(self.db.size(), 1)
-        self.assertEqual(self.data, self.db.getSPO())
-
-    def test_nt(self):
-        self.db.exportNt("hexastoretest1")
-        self.db.clear()
-        self.db.importNt("hexastoretest1")
-        self.assertEqual(self.db.size(), 1)
-        self.assertEqual(self.data, self.db.getSPO())
+        self.store.export_json(self.name)
+        self.store.delete_all()
+        self.store.import_json(self.name)
+        self.assertEqual(self.store.count(), 1)
+        self.assertEqual(self.data, self.store._spo)
 
 
 if __name__ == "__main__":
-    main()
+    unittest.main()

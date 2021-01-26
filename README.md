@@ -1,71 +1,46 @@
 # hexastore
 
+![](https://github.com/e-k-m/hexastore/workflows/main/badge.svg)
+
 > another hexastore implementation
 
-A pure Python triple store / graph database implementation. The
-implementation is based on
-[this paper](http://karras.rutgers.edu/hexastore.pdf). This is a
-project in its infancy, its usage is with risk and is mainly an
-exploration for a more serious implementation.
+[Installation](#installation) | [Getting Up And Running](#getting-up-and-running) | [Examples](#examples) | [API](#api) | [See Also](#see-also)
+
+An implementation of ["Sextuple Indexing for Semantic Web Data Management"
+from C. Weiss et al.](http://people.csail.mit.edu/tdanford/6830papers/weiss-hexastore.pdf).
+This is an implementation for fun only, hence may be used if really needed, else it is
+adviced to use something more serious. The main feature are:
+
+- Basic functionality to CRUD triples in the store.
 
 ## Installation
 
-To install use pip:
-
-	$ pip install hexa
-
-
-Or clone the repo:
-
-	$ git clone <...>
-	$ python setup.py install
-
-## API and Usage
-
-```python
-from hexa.hexastore import Hexastore
-
-# create a new database
-db = Hexastore()
-
-# add a single triple
-db.put(["hexastores", "are", "awesome"])
-
-# add a collection of triples
-db.putall([["hexastore", "is", "nice"],
-		   ["hexastore", "speed", "fast"],
-		   ["javascript", "is", "nice"]])
-
-
-# add triples represented as dictionaries
-db.addSPO({'hexastore': {'is': {'awesome': True, 'nice': True},
-						 'speed': {'fast': True}},
-		   'javascript': {'is': {'nice': True}}})
-
-# or using
-db.addSPO(...)
-db.addSOP(...)
-db.addOSP(...)
-db.addOPS(...)
-db.addPSO(...)
-db.addPOS(...)
-
-# import and export
-db.importJSON("mydatabase")    # import mydatabase.json
-db.importNt("mydatabase")      # import mydatabase.nt
-
-db.exportJSON("mydatabase")    # export mydatabase.json
-db.exportNt("mydatabase")      # export mydatabase.json
-
-# searching (stuff in list are to be bound variables)
-result = db.search([ [["what"],"is","nice"]]);
-
-# -> [{'what': 'hexastore'}, {'what': 'javascript'}]
-
-# and since search result are only a list you can use
-# map, filter and reduce to your hearts delight.
+```bash
+pip install hexastore
 ```
 
-## TODO
+## Getting Up and Running
 
-- [ ] Extend by implementing features from levelgraph
+```bash
+nox -l
+```
+
+## Examples
+
+```python
+import hexastore
+store = hexastore.Hexastore()
+store.insert(["hexastores", "are", "awesome"])
+store.insert(["cats", "are", "awesome"])
+result = store.search(subject="cats")
+```
+
+## API
+
+For now `pydoc hexastore.Hexastore`.
+
+## See Also
+
+- See the original paper [here](http://people.csail.mit.edu/tdanford/6830papers/weiss-hexastore.pdf).
+
+- Or for a more serious library, maybe use [this](https://github.com/RDFLib/rdflib).
